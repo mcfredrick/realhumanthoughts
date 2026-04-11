@@ -1,0 +1,91 @@
+name: Daily Thought
+
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-caching: true
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Guard — skip if today's post already exists
+        run: |
+          POST="content/posts/$(date -u +%Y-%m-%d).md"
+          if [ -f "$POST" ]; then
+            echo "Post already exists, skipping."
+            echo "SKIP=true" >> "$GITHUB_ENV"
+          fi
+
+      - name: Pick thought
+        if: env.SKIP != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: uv run python agents/pick_thought.py
+
+      - name: Write post
+        if: env.SKIP != 'true' && env.THOUGHT_SELECTED == 'true'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          TODAY=$(date -u +%Y-%m-%d)
+          uv run python agents/writing_agent.py
+
+      - name: Validate post
+        if: env.SKIP != 'true' && env.THOUGHT_SELECTED == 'true'
+        run: |
+          POST="content/posts/$(date -u +%Y-%m-%d).md"
+          uv run python agents/validate_post.py "$POST"
+
+      - name: Commit post
+        if: env.SKIP != 'true' && env.THOUGHT_SELECTED == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          POST="content/posts/$(date -u +%Y-%m-%d).md"
+          if git add "$POST" && git diff --cached --quiet; then
+            echo "Nothing to commit."
+          else
+            git commit -m "post: $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Close consumed issue
+        if: env.SKIP != 'true' && env.THOUGHT_SELECTED == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue close "$THOUGHT_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --comment "Published as today's post."
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: 'latest'
+
+      - name: Build site
+        run: hugo --minify
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          cname: realhumanthoughts.blog
