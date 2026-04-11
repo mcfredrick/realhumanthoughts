@@ -38,3 +38,9 @@ def test_title_must_be_nonempty_string(tmp_path):
         '---\ntitle: ""\ndate: 2026-04-10\ndraft: false\n---\n\nSome content.\n'
     )
     assert validate(str(p)) is False
+
+
+def test_missing_closing_frontmatter_delimiter(tmp_path):
+    p = tmp_path / "2026-04-10.md"
+    p.write_text('---\ntitle: "A Thought"\ndate: 2026-04-10\ndraft: false\n\nSome content.\n')
+    assert validate(str(p)) is False
