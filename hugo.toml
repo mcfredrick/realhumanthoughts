@@ -1,0 +1,11 @@
+baseURL = "https://realhumanthoughts.blog/"
+languageCode = "en-us"
+title = "Real Human Thoughts"
+theme = "rht"
+
+[params]
+  author = "Matt"
+  description = "Unfiltered thoughts, published daily."
+
+[markup.goldmark.renderer]
+  unsafe = true

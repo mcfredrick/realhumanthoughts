@@ -1,0 +1,15 @@
+[project]
+name = "realhumanthoughts"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "tenkai-lib @ git+https://github.com/mcfredrick/tenkai-lib.git",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["agents/tests"]
