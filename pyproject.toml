@@ -6,8 +6,8 @@ dependencies = [
     "tenkai-lib @ git+https://github.com/mcfredrick/tenkai-lib.git",
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest>=8.0",
 ]
 
