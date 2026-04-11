@@ -1,0 +1,29 @@
+{{ define "main" }}
+{{ $posts := where .Site.RegularPages "Type" "posts" }}
+{{ $latest := index ($posts.ByDate.Reverse) 0 }}
+
+{{ with $latest }}
+<div class="home-latest">
+  <p class="section-label">Latest thought</p>
+  <h1 class="post-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+  <time class="post-date" datetime="{{ .Date.Format "2006-01-02" }}">
+    {{ .Date.Format "January 2, 2006" }}
+  </time>
+  <div class="post-content">
+    {{ .Content }}
+  </div>
+</div>
+{{ end }}
+
+{{ if gt (len $posts) 1 }}
+<p class="section-label">Previous thoughts</p>
+<ul class="post-list">
+  {{ range (after 1 ($posts.ByDate.Reverse)) }}
+  <li>
+    <a class="post-link" href="{{ .Permalink }}">{{ .Title }}</a>
+    <span class="post-list-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+  </li>
+  {{ end }}
+</ul>
+{{ end }}
+{{ end }}

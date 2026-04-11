@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="inner">
+      <button class="theme-toggle" onclick="toggleTheme()">light / dark</button>
+      <span class="site-title"><a href="{{ "/" | relURL }}">{{ .Site.Title }}</a></span>
+    </div>
+  </header>
+
+  <main>
+    <div class="inner">
+      {{- block "main" . }}{{- end }}
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="inner">
+      {{ .Site.Params.description }}
+    </div>
+  </footer>
+
+  <script>
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    }
+  </script>
+</body>
+</html>

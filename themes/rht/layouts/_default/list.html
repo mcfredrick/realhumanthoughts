@@ -1,0 +1,11 @@
+{{ define "main" }}
+<p class="section-label">All thoughts</p>
+<ul class="post-list">
+  {{ range .Pages.ByDate.Reverse }}
+  <li>
+    <a class="post-link" href="{{ .Permalink }}">{{ .Title }}</a>
+    <span class="post-list-date">{{ .Date.Format "Jan 2, 2006" }}</span>
+  </li>
+  {{ end }}
+</ul>
+{{ end }}
