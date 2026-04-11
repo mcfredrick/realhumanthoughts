@@ -29,12 +29,12 @@ SYSTEM_PROMPT = (
 )
 
 
-def write_post(thought_path: str, post_path: str, api_key: str, date: str) -> None:
+def write_post(thought_path: str, post_path: str, api_key: str, date_str: str) -> None:
     with open(thought_path) as f:
         thought = json.load(f)
 
     raw_body = thought["body"].strip()
-    user_prompt = f"Date: {date}\n\nRaw thought:\n{raw_body}"
+    user_prompt = f"Date: {date_str}\n\nRaw thought:\n{raw_body}"
 
     selector = ModelSelector(api_key=api_key)
     models = selector.fetch_free_models()
@@ -45,7 +45,7 @@ def write_post(thought_path: str, post_path: str, api_key: str, date: str) -> No
     response = client.call(system_prompt=SYSTEM_PROMPT, user_prompt=user_prompt)
 
     # Replace the placeholder date with the actual date if LLM used the template literally
-    response = response.replace("date: YYYY-MM-DD", f"date: {date}")
+    response = response.replace("date: YYYY-MM-DD", f"date: {date_str}")
 
     with open(post_path, "w") as f:
         f.write(response)
@@ -58,6 +58,6 @@ if __name__ == "__main__":
         thought_path="thought.json",
         post_path=post_path,
         api_key=os.environ["OPENROUTER_API_KEY"],
-        date=today,
+        date_str=today,
     )
     print(f"Post written: {post_path}")

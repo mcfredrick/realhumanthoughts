@@ -25,7 +25,7 @@ def test_write_post_produces_valid_file(tmp_path):
             thought_path=str(thought_file),
             post_path=str(post_file),
             api_key="fake",
-            date="2026-04-10",
+            date_str="2026-04-10",
         )
 
     assert post_file.exists()
@@ -61,7 +61,7 @@ def test_write_post_injects_date(tmp_path):
             thought_path=str(thought_file),
             post_path=str(post_file),
             api_key="fake",
-            date="2026-04-10",
+            date_str="2026-04-10",
         )
 
     content = post_file.read_text()
