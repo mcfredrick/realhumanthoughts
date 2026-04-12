@@ -6,6 +6,7 @@ Reads thought.json, calls LLM, writes YYYY-MM-DD.md with Hugo frontmatter.
 
 import json
 import os
+import re
 import sys
 from datetime import date as _date
 
@@ -43,6 +44,10 @@ def write_post(thought_path: str, post_path: str, api_key: str, date_str: str) -
 
     client = LLMClient(api_key=api_key, preferred_model=models[0]["id"])
     response = client.call(system_prompt=SYSTEM_PROMPT, user_prompt=user_prompt)
+
+    # Strip markdown code fences if LLM wrapped the response
+    response = re.sub(r'^```(?:markdown)?\s*\n', '', response.strip())
+    response = re.sub(r'\n```\s*$', '', response)
 
     # Replace the placeholder date with the actual date if LLM used the template literally
     response = response.replace("date: YYYY-MM-DD", f"date: {date_str}")
